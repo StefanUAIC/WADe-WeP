@@ -1,0 +1,95 @@
+@prefix schema: <http://schema.org/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix news: <http://news-provenance.org/article/> .
+
+# Article 1 - Technology News
+news:001 a schema:NewsArticle, schema:CreativeWork ;
+    schema:headline "AI Breakthrough: New Model Achieves Human-Level Understanding" ;
+    schema:articleBody "Researchers announce a significant milestone in artificial intelligence..." ;
+    schema:author <http://news-provenance.org/author/JohnDoe> ;
+    schema:datePublished "2025-01-04T10:00:00Z"^^xsd:dateTime ;
+    schema:inLanguage "en" ;
+    schema:description "Major breakthrough in AI research leads to new understanding capabilities" ;
+    schema:url <http://localhost:3000/articles/001> ;
+    schema:wordCount "3500"^^xsd:integer ;
+    schema:encodingFormat "text" ;
+    schema:about "artificial intelligence, technology, research" ;
+    dc:creator "John Doe" ;
+    dcterms:created "2025-01-04T10:00:00Z"^^xsd:dateTime ;
+    dcterms:rights "CC BY 4.0" .
+
+<http://news-provenance.org/author/JohnDoe> a schema:Person ;
+    schema:name "John Doe" .
+
+# Article 2 - Romanian Investigation
+news:002 a schema:NewsArticle ;
+    schema:headline "Investigație: Corupția în Sectorul Public" ;
+    schema:articleBody "O investigație de amploare dezvăluie rețele de corupție..." ;
+    schema:author <http://news-provenance.org/author/MariaPopescu> ;
+    schema:datePublished "2025-01-03T14:30:00Z"^^xsd:dateTime ;
+    schema:inLanguage "ro" ;
+    schema:description "Investigație jurnalistică despre corupție" ;
+    schema:url <http://localhost:3000/articles/002> ;
+    schema:wordCount "5200"^^xsd:integer ;
+    schema:encodingFormat "text" ;
+    schema:genre "Investigation" ;
+    schema:about "corupție, investigație, România" ;
+    dc:creator "Maria Popescu" ;
+    dcterms:created "2025-01-03T14:30:00Z"^^xsd:dateTime .
+
+<http://news-provenance.org/author/MariaPopescu> a schema:Person ;
+    schema:name "Maria Popescu" .
+
+# Article 3 - Short IT Contest Article
+news:003 a schema:NewsArticle ;
+    schema:headline "International Programming Competition Results" ;
+    schema:articleBody "Winners announced for the annual coding competition..." ;
+    schema:author <http://news-provenance.org/author/CarlosSanchez> ;
+    schema:datePublished "2025-01-02T09:00:00Z"^^xsd:dateTime ;
+    schema:inLanguage "es" ;
+    schema:description "Resultados del concurso de programación internacional" ;
+    schema:url <http://localhost:3000/articles/003> ;
+    schema:wordCount "2800"^^xsd:integer ;
+    schema:encodingFormat "text" ;
+    schema:about "IT contest, programming competition, technology" ;
+    dc:creator "Carlos Sanchez" .
+
+<http://news-provenance.org/author/CarlosSanchez> a schema:Person ;
+    schema:name "Carlos Sanchez" .
+
+# Article 4 - Multimedia Content
+news:004 a schema:NewsArticle ;
+    schema:headline "Video Report: Climate Change Impact" ;
+    schema:articleBody "Video documentary showcasing climate change effects..." ;
+    schema:author <http://news-provenance.org/author/EmilyJohnson> ;
+    schema:datePublished "2025-01-01T16:00:00Z"^^xsd:dateTime ;
+    schema:inLanguage "en" ;
+    schema:description "Documentary video about climate change" ;
+    schema:url <http://localhost:3000/articles/004> ;
+    schema:wordCount "1500"^^xsd:integer ;
+    schema:encodingFormat "video" ;
+    schema:about "climate change, environment, documentary" ;
+    dc:creator "Emily Johnson" .
+
+<http://news-provenance.org/author/EmilyJohnson> a schema:Person ;
+    schema:name "Emily Johnson" .
+
+# Article 5 - Editorial
+news:005 a schema:NewsArticle ;
+    schema:headline "Editorial: The Future of Journalism" ;
+    schema:articleBody "An analysis of how journalism is evolving in the digital age..." ;
+    schema:author <http://news-provenance.org/author/DavidBrown> ;
+    schema:datePublished "2024-12-30T08:00:00Z"^^xsd:dateTime ;
+    schema:inLanguage "en" ;
+    schema:description "Editorial discussing journalism's future" ;
+    schema:articleSection "Editorial" ;
+    schema:url <http://localhost:3000/articles/005> ;
+    schema:wordCount "2200"^^xsd:integer ;
+    schema:encodingFormat "text" ;
+    schema:about "journalism, media, technology" ;
+    dc:creator "David Brown" .
+
+<http://news-provenance.org/author/DavidBrown> a schema:Person ;
+    schema:name "David Brown" .

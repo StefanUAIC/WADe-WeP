@@ -1,0 +1,33 @@
+{
+  "name": "provenance-management-platform",
+  "version": "1.0.0",
+  "description": "Web platform for managing newspaper article provenance using W3C PROV standards and Apache Jena Fuseki",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "provenance",
+    "PROV",
+    "RDF",
+    "Turtle",
+    "semantic-web",
+    "newspaper",
+    "DCMI",
+    "metadata",
+    "apache-jena",
+    "fuseki",
+    "sparql"
+  ],
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "author": "",
+  "license": "MIT"
+}

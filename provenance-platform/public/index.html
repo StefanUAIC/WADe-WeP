@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provenance Management Platform - Home</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">📰 Provenance Platform</div>
+            <ul class="nav-menu">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/browse">Browse</a></li>
+                <li><a href="/query">Query</a></li>
+                <li><a href="/sparql">SPARQL</a></li>
+                <li><a href="/upload">Upload</a></li>
+                <li><a href="/visualize">Visualize</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="connection-status" id="connectionStatus">
+            <div>
+                <span class="status-indicator" id="statusDot"></span>
+                <strong>Apache Jena Fuseki:</strong>
+                <span id="statusText">Checking...</span>
+            </div>
+            <small id="statusDetails"></small>
+        </div>
+
+        <div class="hero">
+            <h1>📰 Newspaper Article Provenance Management</h1>
+            <p>
+                A comprehensive platform for modeling, querying, and visualizing the provenance
+                of online newspaper articles using W3C PROV standards, Apache Jena Fuseki,
+                and semantic web technologies.
+            </p>
+            <div class="hero-buttons">
+                <a href="/browse" class="hero-btn">Browse Articles</a>
+                <a href="/sparql" class="hero-btn secondary">Run SPARQL Query</a>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>Database Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number" id="statEntities">-</div>
+                    <div class="stat-label">Entities</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statActivities">-</div>
+                    <div class="stat-label">Activities</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statAgents">-</div>
+                    <div class="stat-label">Agents</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Advanced Querying</h3>
+                <p>Execute powerful SPARQL queries against your provenance data.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Interactive Visualization</h3>
+                <p>Explore provenance relationships through interactive graphs.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>W3C PROV Compliant</h3>
+                <p>Fully compliant with W3C PROV standards.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📤</div>
+                <h3>Data Upload</h3>
+                <p>Upload RDF/Turtle data directly to Fuseki.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🏷️</div>
+                <h3>Rich Metadata</h3>
+                <p>Support for DCMI, IPTC, FOAF, and more.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3>Relationship Tracking</h3>
+                <p>Track derivations, revisions, and alternates.</p>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="action-grid">
+                <a href="/browse" class="action-card">
+                    <div class="action-icon">📚</div>
+                    <h3>Browse Data</h3>
+                    <p>Explore entities, activities, and agents</p>
+                </a>
+
+                <a href="/query" class="action-card">
+                    <div class="action-icon">🔎</div>
+                    <h3>Simple Query</h3>
+                    <p>Search with filters</p>
+                </a>
+
+                <a href="/sparql" class="action-card">
+                    <div class="action-icon">💻</div>
+                    <h3>SPARQL Editor</h3>
+                    <p>Custom SPARQL queries</p>
+                </a>
+
+                <a href="/upload" class="action-card">
+                    <div class="action-icon">📥</div>
+                    <h3>Upload Data</h3>
+                    <p>Add RDF/Turtle data</p>
+                </a>
+
+                <a href="/visualize" class="action-card">
+                    <div class="action-icon">🌐</div>
+                    <h3>Visualize Graph</h3>
+                    <p>Interactive provenance graph</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/home.js" defer></script>
+</body>
+</html>

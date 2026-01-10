@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" vocab="http://schema.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPARQL Query - News Provenance Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">News Provenance Platform</h1>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="articles.html">Articles</a></li>
+                    <li><a href="search.html">Search</a></li>
+                    <li><a href="sparql.html" class="active">SPARQL Query</a></li>
+                    <li><a href="create.html">Create Article</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>SPARQL Query Interface</h2>
+        
+        <div class="predefined-queries">
+            <h3>Predefined Queries</h3>
+            <button class="btn btn-secondary btn-query" data-query="freshEditorials">Fresh Editorials</button>
+            <button class="btn btn-secondary btn-query" data-query="shortArticles">Short Articles (EN/ES)</button>
+            <button class="btn btn-secondary btn-query" data-query="romanianInvestigations">Romanian Investigations</button>
+            <button class="btn btn-secondary btn-query" data-query="multimediaContent">Multimedia Content</button>
+        </div>
+
+        <div class="query-editor">
+            <h3>Custom Query</h3>
+            <textarea id="sparqlQuery" rows="10" placeholder="Enter your SPARQL query here..."></textarea>
+            <button id="btnExecuteQuery" class="btn btn-primary">Execute Query</button>
+        </div>
+
+        <div id="queryResults" class="results-container"></div>
+    </main>
+
+    <!-- <footer>
+        <div class="container">
+            <p>&copy; 2025 News Provenance Platform | Built with Node.js, Apache Jena Fuseki, and RDF</p>
+            <p>Open Source Project | <a href="https://github.com/yourusername/news-provenance">GitHub</a></p>
+        </div>
+    </footer> -->
+
+    <script src="js/main.js"></script>
+    <script src="js/sparql-query.js"></script>
+
+</body>
+</html>
