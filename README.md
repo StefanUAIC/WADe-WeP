@@ -1,442 +1,256 @@
-# Provenance Management Platform
+<div align="center">
 
-A comprehensive web application for modeling and managing the provenance of online newspaper articles using W3C PROV standards, Apache Jena Fuseki, and semantic web technologies.
+  <h1>WeP - Web News Provenance</h1>
+  
+  <p>
+    A comprehensive web application for modeling and managing the provenance of online newspaper articles using W3C PROV standards, Apache Jena Fuseki, and semantic web technologies.
+  </p>
+  
+<p>
+  <a href="">
+    <img src="https://img.shields.io/github/contributors/StefanUAIC/WADe-WeP" alt="contributors" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/github/last-commit/StefanUAIC/WADe-WeP" alt="last update" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/github/forks/StefanUAIC/WADe-WeP" alt="forks" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/github/stars/StefanUAIC/WADe-WeP" alt="stars" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/github/issues/StefanUAIC/WADe-WeP" alt="open issues" />
+  </a>
+</p>
+   
+<h4>
+    <a href="http://your-deployed-app.com">View Demo</a>
+  <span> · </span>
+    <a href="#eyes-usage">Documentation</a>
+  <span> · </span>
+    <a href="https://github.com/StefanUAIC/WADe-WeP/issues/">Report Bug</a>
+  <span> · </span>
+    <a href="https://github.com/StefanUAIC/WADe-WeP/issues/">Request Feature</a>
+  </h4>
+</div>
 
-## 📁 Complete Folder Structure
+<br />
 
-test commit
+# :notebook_with_decorative_cover: Table of Contents
 
-```
-provenance-platform/
-├── server.js                 # Node.js Express server with Fuseki integration
-├── package.json              # Project dependencies
-├── README.md                 # This file
-├── .env.example             # Environment variables template
-└── public/                  # Frontend files
-    ├── index.html           # Home page with statistics
-    ├── browse.html          # Browse entities/activities/agents
-    ├── query.html           # Query builder interface
-    ├── sparql.html          # SPARQL editor
-    ├── upload.html          # Data upload interface
-    ├── visualize.html       # Graph visualization
-    ├── css/
-    │   └── style.css        # Common styles
-    └── js/
-        └── common.js        # Common JavaScript utilities
-```
+- [About the Project](#star2-about-the-project)
+  * [Screenshots](#camera-screenshots)
+  * [Tech Stack](#space_invader-tech-stack)
+  * [Features](#dart-features)
+  * [Environment Variables](#key-environment-variables)
+- [Getting Started](#toolbox-getting-started)
+  * [Prerequisites](#bangbang-prerequisites)
+  * [Installation](#gear-installation)
+  * [Run Locally](#running-run-locally)
+  * [Deployment](#triangular_flag_on_post-deployment)
+- [Usage](#eyes-usage)
+- [Roadmap](#compass-roadmap)
+- [License](#warning-license)
+- [Contact](#handshake-contact)
+- [Acknowledgements](#gem-acknowledgements)
 
-## 🚀 Quick Start
+## :star2: About the Project
 
-### Prerequisites
+WeP (Web News Provenance) is a semantic web application designed to track, model, and manage the complete provenance chain of online newspaper articles. Built using W3C PROV standards, it provides comprehensive metadata management, entity linking with DBpedia/Wikidata, and advanced recommendation systems for news content discovery.
 
-1. **Node.js** (v14 or higher)
-2. **Apache Jena Fuseki** server running with a dataset named `news-provenance`
+### :camera: Screenshots
 
-### Install Apache Jena Fuseki
+<div align="center"> 
+  <img src="https://placehold.co/600x400?text=WeP+Dashboard" alt="WeP Dashboard" />
+</div>
 
-```bash
-# Download Fuseki
-wget https://dlcdn.apache.org/jena/binaries/apache-jena-fuseki-4.10.0.tar.gz
+### :space_invader: Tech Stack
 
-# Extract
-tar xzf apache-jena-fuseki-4.10.0.tar.gz
-cd apache-jena-fuseki-4.10.0
+<details>
+  <summary>Client</summary>
+  <ul>
+    <li><a href="https://reactjs.org/">React.js</a></li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility">WCAG 2.1 AA Compliant</a></li>
+    <li><a href="https://schema.org/">Schema.org</a></li>
+    <li><a href="https://www.w3.org/TR/rdfa-primer/">RDFa</a></li>
+  </ul>
+</details>
 
-# Start Fuseki server
-./fuseki-server --mem /news-provenance
+<details>
+  <summary>Server</summary>
+  <ul>
+    <li><a href="https://www.python.org/">Python</a></li>
+    <li><a href="https://fastapi.tiangolo.com/">FastAPI</a></li>
+    <li><a href="https://rdflib.readthedocs.io/">RDFLib</a></li>
+    <li><a href="https://sparqlwrapper.readthedocs.io/">SPARQLWrapper</a></li>
+  </ul>
+</details>
 
-# Or with persistent storage
-./fuseki-server --loc=./databases/news-provenance /news-provenance
-```
+<details>
+<summary>Database & Semantic Web</summary>
+  <ul>
+    <li><a href="https://jena.apache.org/documentation/fuseki2/">Apache Jena Fuseki</a></li>
+    <li><a href="https://www.w3.org/TR/sparql11-query/">SPARQL 1.1</a></li>
+    <li><a href="https://www.w3.org/TR/prov-overview/">W3C PROV</a></li>
+    <li><a href="https://www.w3.org/TR/shacl/">SHACL Validation</a></li>
+    <li><a href="https://dbpedia.org/">DBpedia</a></li>
+    <li><a href="https://www.wikidata.org/">Wikidata</a></li>
+  </ul>
+</details>
 
-Fuseki will start on `http://localhost:3030` with a web UI at that address.
+<details>
+<summary>DevOps & ML</summary>
+  <ul>
+    <li><a href="https://www.docker.com/">Docker</a></li>
+    <li><a href="https://aws.amazon.com/">AWS EC2</a></li>
+    <li><a href="https://scikit-learn.org/">Scikit-learn</a></li>
+    <li><a href="https://spacy.io/">spaCy NLP</a></li>
+  </ul>
+</details>
 
-### Install the Application
+### :dart: Features
 
-```bash
-# 1. Create project directory
-mkdir provenance-platform
-cd provenance-platform
+- **W3C PROV Compliance**: Full support for provenance ontology with entities, activities, and agents
+- **Semantic Web Integration**: DBpedia and Wikidata entity linking and enrichment
+- **SPARQL Endpoint**: Native RDF querying with comprehensive SPARQL 1.1 support
+- **Schema.org Export**: JSON-LD and RDFa markup for Creative Work concepts
+- **ML-Powered Recommendations**: Machine learning-based article recommendation system
+- **SHACL Validation**: RDF data validation using SHACL constraints
+- **Multi-format Support**: Turtle, RDF/XML, N-Triples, JSON-LD import/export
+- **Accessibility Compliant**: WCAG 2.1 AA compliant user interface
+- **Real-time Visualization**: Interactive provenance graph visualization
+- **Multilingual Support**: Content management in multiple languages
 
-# 2. Create folder structure
-mkdir -p public/css public/js
+### :key: Environment Variables
 
-# 3. Save all provided files to their respective locations:
-#    - server.js in root
-#    - package.json in root
-#    - All HTML files in public/
-#    - style.css in public/css/
-#    - common.js in public/js/
-
-# 4. Install dependencies
-npm install
-
-# 5. (Optional) Create .env file for custom configuration
-cat > .env << EOF
-PORT=3000
-FUSEKI_URL=http://localhost:3030
-EOF
-
-# 6. Start the server
-npm start
-```
-
-## 🎯 Application Pages
-
-### 1. **Home Page** (`/`)
-- Database statistics dashboard
-- Connection status to Fuseki
-- Quick action links
-- Feature overview
-
-### 2. **Browse Page** (`/browse`)
-- Tabbed interface for Entities, Activities, and Agents
-- Search functionality across all resources
-- Click any card to view detailed properties
-- Real-time data from Fuseki
-
-### 3. **Query Builder** (`/query`)
-- User-friendly query interface
-- Filter by resource type, title, URI
-- Provenance relationship filters
-- Time range filters for activities
-- Quick filter presets
-- Export results to CSV/JSON
-- View generated SPARQL queries
-
-### 4. **SPARQL Editor** (`/sparql`)
-- Full-featured SPARQL query editor
-- 6+ example queries included
-- Syntax highlighting
-- Query formatting
-- Results in table and JSON views
-- Export to CSV
-- Keyboard shortcuts (Ctrl+Enter to execute)
-
-### 5. **Upload Page** (`/upload`)
-- Drag-and-drop file upload
-- Manual RDF data entry
-- Multiple format support (Turtle, RDF/XML, N-Triples, N3)
-- Data validation
-- Direct upload to Fuseki
-
-### 6. **Visualization Page** (`/visualize`)
-- Interactive force-directed graph
-- D3.js powered visualization
-- Color-coded node types
-- Zoom and pan controls
-- Draggable nodes
-- Click nodes to navigate to details
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
+To run this project, you will need to add the following environment variables to your .env file
 
 ```env
-PORT=3000
 FUSEKI_URL=http://localhost:3030
+REACT_APP_API_URL=http://localhost:8000
+DBPEDIA_ENDPOINT=http://dbpedia.org/sparql
+WIKIDATA_ENDPOINT=https://query.wikidata.org/sparql
 ```
 
-### Fuseki Configuration
+## :toolbox: Getting Started
 
-The application expects:
-- **Endpoint**: `http://localhost:3030`
-- **Dataset Name**: `news-provenance`
-- **SPARQL Query Endpoint**: `http://localhost:3030/news-provenance/sparql`
-- **SPARQL Update Endpoint**: `http://localhost:3030/news-provenance/update`
-- **Data Upload Endpoint**: `http://localhost:3030/news-provenance/data`
+### :bangbang: Prerequisites
 
-## 📊 API Endpoints
-
-### Query Endpoints
-
-- `GET /api/entities` - Get all entities
-- `GET /api/activities` - Get all activities
-- `GET /api/agents` - Get all agents
-- `GET /api/provenance-graph` - Get graph data for visualization
-- `GET /api/resource?uri=<URI>` - Get resource details
-- `GET /api/recommend?uri=<URI>` - Get related resources
-- `GET /api/stats` - Get database statistics
-
-### Data Management
-
-- `POST /api/upload` - Upload RDF data to Fuseki
-- `POST /api/sparql/query` - Execute SPARQL SELECT query
-- `POST /api/sparql/update` - Execute SPARQL UPDATE
-- `POST /api/search` - Full-text search
-
-### Health
-
-- `GET /api/health` - Check Fuseki connection status
-
-## 🎨 Features
-
-### Core Capabilities
-
-✅ **W3C PROV Compliant**
-- Full support for PROV-O ontology
-- Entities, Activities, and Agents
-- All standard provenance relationships
-
-✅ **Apache Jena Fuseki Integration**
-- Direct SPARQL queries to Fuseki
-- Real-time data updates
-- Efficient triple store backend
-
-✅ **Rich Metadata Support**
-- Dublin Core (DCMI)
-- FOAF (Friend of a Friend)
-- IPTC Standards
-- Custom vocabularies
-
-✅ **Multiple Interfaces**
-- Simple query builder for non-technical users
-- Advanced SPARQL editor for power users
-- Interactive graph visualization
-- Browsable resource catalog
-
-✅ **Data Upload**
-- Multiple RDF formats
-- Drag-and-drop interface
-- Validation before upload
-- Batch processing capability
-
-### User Experience
-
-- 🎨 Modern, gradient-based UI design
-- 📱 Responsive layout
-- 🔔 Real-time notifications
-- ⌨️ Keyboard shortcuts
-- 💾 Export functionality (CSV, JSON)
-- 🔍 Full-text search
-- 🌐 Interactive graph visualization
-
-## 📝 Example Data
-
-### Sample Turtle Data
-
-```turtle
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix prov: <http://www.w3.org/ns/prov#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix ex: <http://example.org/news#> .
-
-# Article Entity
-ex:article_001 a prov:Entity ;
-    dcterms:title "Breaking News: Technology Advances" ;
-    dcterms:creator ex:reporter_jane ;
-    dcterms:created "2024-01-15T10:00:00"^^xsd:dateTime ;
-    prov:wasGeneratedBy ex:writing_activity ;
-    prov:wasAttributedTo ex:reporter_jane .
-
-# Writing Activity
-ex:writing_activity a prov:Activity ;
-    prov:used ex:source_data ;
-    prov:startedAtTime "2024-01-15T08:00:00"^^xsd:dateTime ;
-    prov:endedAtTime "2024-01-15T10:00:00"^^xsd:dateTime ;
-    prov:wasAssociatedWith ex:reporter_jane .
-
-# Reporter Agent
-ex:reporter_jane a prov:Agent, prov:Person ;
-    foaf:name "Jane Smith" ;
-    foaf:mbox <mailto:jane@newspaper.com> ;
-    prov:actedOnBehalfOf ex:newspaper_org .
-
-# Newspaper Organization
-ex:newspaper_org a prov:Agent, prov:Organization ;
-    foaf:name "Daily News Corporation" .
-
-# Revised Article
-ex:article_002 a prov:Entity ;
-    dcterms:title "Breaking News: Technology Advances (Updated)" ;
-    prov:wasRevisionOf ex:article_001 ;
-    prov:wasGeneratedBy ex:revision_activity .
-```
-
-## 🔍 Example SPARQL Queries
-
-### Find All Articles and Their Authors
-
-```sparql
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-
-SELECT ?article ?title ?author ?authorName
-WHERE {
-  ?article a prov:Entity ;
-           dcterms:title ?title ;
-           prov:wasAttributedTo ?author .
-  ?author foaf:name ?authorName .
-}
-```
-
-### Find Provenance Chain
-
-```sparql
-PREFIX prov: <http://www.w3.org/ns/prov#>
-
-SELECT ?entity ?activity ?agent
-WHERE {
-  ?entity prov:wasGeneratedBy ?activity .
-  ?activity prov:wasAssociatedWith ?agent .
-}
-```
-
-### Find Derived Articles
-
-```sparql
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
-
-SELECT ?original ?originalTitle ?derived ?derivedTitle
-WHERE {
-  ?derived prov:wasDerivedFrom ?original .
-  OPTIONAL { ?original dcterms:title ?originalTitle }
-  OPTIONAL { ?derived dcterms:title ?derivedTitle }
-}
-```
-
-## 🛠️ Development
-
-### Run in Development Mode
+This project requires Docker and Docker Compose
 
 ```bash
-npm run dev
+# Install Docker Desktop
+# https://docs.docker.com/desktop/
+
+# Verify installation
+docker --version
+docker-compose --version
 ```
 
-This uses nodemon for auto-restart on file changes.
+### :gear: Installation
 
-### Project Architecture
-
-**Backend (server.js)**
-- Express.js web server
-- Axios for Fuseki communication
-- RESTful API endpoints
-- SPARQL query translation
-- File upload handling
-
-**Frontend**
-- Vanilla JavaScript (no framework dependencies)
-- D3.js for graph visualization
-- Responsive CSS with gradient design
-- Modular page structure
-- Common utilities in `common.js`
-
-## 📖 W3C PROV Standards
-
-### Core Classes
-
-- **`prov:Entity`** - Physical, digital, or conceptual things
-- **`prov:Activity`** - Actions that occur over time
-- **`prov:Agent`** - Responsible parties (people, organizations)
-
-### Key Properties
-
-- **Generation**: `prov:wasGeneratedBy`
-- **Usage**: `prov:used`
-- **Attribution**: `prov:wasAttributedTo`
-- **Association**: `prov:wasAssociatedWith`
-- **Derivation**: `prov:wasDerivedFrom`
-- **Revision**: `prov:wasRevisionOf`
-- **Delegation**: `prov:actedOnBehalfOf`
-
-## 🔒 Security Considerations
-
-For production deployment:
-
-1. **Authentication**: Add user authentication (e.g., JWT, OAuth)
-2. **Authorization**: Implement role-based access control
-3. **CORS**: Configure CORS for API endpoints
-4. **Rate Limiting**: Add rate limiting to prevent abuse
-5. **Input Validation**: Sanitize all user inputs
-6. **HTTPS**: Use HTTPS in production
-7. **Fuseki Security**: Enable Fuseki authentication
-
-## 🚀 Production Deployment
-
-### Using PM2
+Clone the project
 
 ```bash
-npm install -g pm2
-pm2 start server.js --name provenance-platform
-pm2 save
-pm2 startup
+git clone https://github.com/StefanUAIC/WADe-WeP.git
+cd WADe-WeP
 ```
 
-### Using Docker
+### :running: Run Locally
 
-```dockerfile
-FROM node:18
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
+Start all services with Docker Compose
+
+```bash
+docker-compose up --build
 ```
 
-### Nginx Reverse Proxy
+Access the application:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **Fuseki SPARQL**: http://localhost:3030
 
-```nginx
-server {
-    listen 80;
-    server_name provenance.example.com;
+### :triangular_flag_on_post: Deployment
 
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+Deploy to AWS EC2
+
+```bash
+# Build and push to registry
+docker-compose build
+docker-compose push
+
+# Deploy on EC2
+scp docker-compose.yml ec2-user@your-instance:/home/ec2-user/
+ssh ec2-user@your-instance
+docker-compose up -d
+```
+
+## :eyes: Usage
+
+### Creating Articles with Provenance
+
+```python
+# Example API usage
+import requests
+
+article_data = {
+    "title": "Breaking News: AI Advances",
+    "content": "Article content here...",
+    "author": "Jane Smith",
+    "publication": "Tech Daily",
+    "language": "en",
+    "keywords": ["AI", "technology", "innovation"]
+}
+
+response = requests.post("http://localhost:8000/api/articles", json=article_data)
+```
+
+### SPARQL Queries
+
+```sparql
+# Find all articles and their provenance
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?article ?title ?author ?activity
+WHERE {
+  ?article a schema:NewsArticle ;
+           schema:headline ?title ;
+           schema:author ?author ;
+           prov:wasGeneratedBy ?activity .
 }
 ```
 
-## 🐛 Troubleshooting
+## :compass: Roadmap
 
-### Fuseki Not Connected
+* [x] W3C PROV implementation
+* [x] SPARQL endpoint setup
+* [x] DBpedia/Wikidata integration
+* [x] SHACL validation
+* [x] ML recommendation system
+* [ ] Advanced NLP entity extraction
+* [ ] Blockchain provenance verification
+* [ ] Real-time collaboration features
 
-- Verify Fuseki is running: `curl http://localhost:3030/$/ping`
-- Check the dataset exists: Visit `http://localhost:3030`
-- Verify FUSEKI_URL in environment variables
+## :warning: License
 
-### No Data Showing
+Distributed under the MIT License. See LICENSE.txt for more information.
 
-- Upload sample data via the Upload page
-- Check Fuseki logs for errors
-- Verify SPARQL endpoint is accessible
+## :handshake: Contact
 
-### Graph Not Rendering
+Stefan Catiru - [@StefanUAIC](https://github.com/StefanUAIC)
 
-- Check browser console for JavaScript errors
-- Ensure D3.js is loaded from CDN
-- Verify data contains PROV relationships
+Matei Maxim - [@HowDidThat](https://github.com/HowDidThat)
 
-## 📚 Resources
+Project Link: [https://github.com/StefanUAIC/WADe-WeP](https://github.com/StefanUAIC/WADe-WeP)
 
-- [W3C PROV Overview](https://www.w3.org/TR/prov-overview/)
-- [Apache Jena Fuseki](https://jena.apache.org/documentation/fuseki2/)
-- [SPARQL 1.1 Query Language](https://www.w3.org/TR/sparql11-query/)
-- [Dublin Core Metadata Initiative](https://www.dublincore.org/)
-- [FOAF Vocabulary](http://xmlns.com/foaf/spec/)
+## :gem: Acknowledgements
 
-## 📄 License
-
-MIT License - feel free to use and modify for your needs.
-
-## 🤝 Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📧 Support
-
-For issues or questions, please open an issue on the project repository.
+- [W3C PROV Working Group](https://www.w3.org/TR/prov-overview/)
+- [Apache Jena Community](https://jena.apache.org/)
+- [DBpedia Association](https://www.dbpedia.org/)
+- [Wikidata Community](https://www.wikidata.org/)
+- [Schema.org Community](https://schema.org/)
+- [SHACL W3C Recommendation](https://www.w3.org/TR/shacl/)
+- [FastAPI Framework](https://fastapi.tiangolo.com/)
+- [React Community](https://reactjs.org/)
