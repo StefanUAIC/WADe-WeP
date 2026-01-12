@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
 function ProvenanceGraph({ data }) {
   const svgRef = useRef();
   const [zoom, setZoom] = useState(1);
   const [mode, setMode] = useState('drag');
   const nodesRef = useRef([]);
-  const gRef = useRef(null);
+  const nodeGroupsRef = useRef([]);
 
   useEffect(() => {
     if (!data || !data.entity) return;
@@ -25,7 +27,6 @@ function ProvenanceGraph({ data }) {
       .style('border-radius', '8px');
 
     const g = svg.append('g');
-    gRef.current = g;
 
     const zoomBehavior = d3.zoom()
       .scaleExtent([0.5, 3])
@@ -36,56 +37,88 @@ function ProvenanceGraph({ data }) {
 
     svg.call(zoomBehavior);
 
-    if (nodesRef.current.length === 0) {
-      nodesRef.current = [
-        { id: 'entity', label: 'Entity', sublabel: 'NewsArticle', x: 500, y: 250, type: 'entity' },
-        { id: 'activity', label: 'Activity', sublabel: 'Creation', x: 300, y: 250, type: 'activity' },
-        { id: 'agent', label: 'Agent', sublabel: data.agent?.name || 'Author', x: 100, y: 250, type: 'agent' }
-      ];
+    const nodes = [
+      { id: 'entity', label: 'Entity', sublabel: 'NewsArticle', x: 500, y: 250, type: 'entity' },
+      { id: 'activity', label: 'Activity', sublabel: 'Creation', x: 300, y: 250, type: 'activity' },
+      { id: 'agent', label: 'Agent', sublabel: data.agent?.name || 'Author', x: 100, y: 250, type: 'agent' }
+    ];
 
-      if (data.derived_from && data.derived_from.length > 0) {
-        data.derived_from.forEach((uri, i) => {
-          nodesRef.current.push({
-            id: `derived-${i}`,
-            label: 'Source',
-            sublabel: uri.includes('article') ? 'Article' : 'External',
-            x: 700,
-            y: 150 + i * 100,
-            type: 'derived'
-          });
+    if (data.derived_from && data.derived_from.length > 0) {
+      data.derived_from.forEach((uri, i) => {
+        let displayUri = uri;
+        let isInternal = uri.includes('/article/');
+        
+        if (isInternal) {
+          const articleId = uri.split('/article/').pop();
+          displayUri = `/articles/${articleId}`;
+        }
+        
+        nodes.push({
+          id: `derived-${i}`,
+          label: 'Source',
+          sublabel: isInternal ? 'Article' : 'External',
+          x: 700,
+          y: 150 + i * 100,
+          type: 'derived',
+          uri: displayUri,
+          isInternal: isInternal
         });
-      }
-
-      if (data.related_entities && data.related_entities.length > 0) {
-        data.related_entities.slice(0, 3).forEach((uri, i) => {
-          nodesRef.current.push({
-            id: `entity-${i}`,
-            label: 'DBpedia',
-            sublabel: uri.split('/').pop().substring(0, 10),
-            x: 700,
-            y: 350 + i * 80,
-            type: 'external'
-          });
-        });
-      }
+      });
     }
 
-    const nodes = nodesRef.current;
+    if (data.related_entities && data.related_entities.length > 0) {
+      data.related_entities.slice(0, 3).forEach((uri, i) => {
+        const isWikidata = uri.includes('wikidata.org');
+        const label = uri.split('/').pop();
+        
+        nodes.push({
+          id: `entity-${i}`,
+          label: isWikidata ? 'Wikidata' : 'DBpedia',
+          sublabel: label.substring(0, 12),
+          x: 700,
+          y: 350 + i * 80,
+          type: isWikidata ? 'wikidata' : 'external',
+          uri: uri
+        });
+      });
+    }
+
+    if (data.wikidata_entities && data.wikidata_entities.length > 0) {
+      data.wikidata_entities.forEach((uri, i) => {
+        if (!data.related_entities || !data.related_entities.includes(uri)) {
+          nodes.push({
+            id: `wikidata-${i}`,
+            label: 'Wikidata',
+            sublabel: uri.split('/').pop(),
+            x: 850,
+            y: 200 + i * 100,
+            type: 'wikidata',
+            uri: uri
+          });
+        }
+      });
+    }
+
+    nodesRef.current = nodes;
 
     const links = [
       { source: nodes[1], target: nodes[0], label: 'generated' },
       { source: nodes[2], target: nodes[1], label: 'associated' }
     ];
 
-    const derivedNodes = nodes.filter(n => n.type === 'derived');
-    derivedNodes.forEach(n => {
+    nodes.filter(n => n.type === 'derived').forEach(n => {
       links.push({ source: n, target: nodes[0], label: 'derivedFrom' });
     });
 
-    const externalNodes = nodes.filter(n => n.type === 'external');
-    externalNodes.forEach(n => {
+    nodes.filter(n => n.type === 'external').forEach(n => {
       links.push({ source: nodes[0], target: n, label: 'mentions' });
     });
+
+    nodes.filter(n => n.type === 'wikidata').forEach(n => {
+      links.push({ source: nodes[0], target: n, label: 'wikidata' });
+    });
+
+    nodesRef.current = nodes;
 
     g.append('defs').append('marker')
       .attr('id', 'arrowhead-white')
@@ -122,65 +155,76 @@ function ProvenanceGraph({ data }) {
     });
 
     const updateLinks = () => {
-      linkElements.forEach(({ line, rect, text, link }) => {
-        const source = link.source;
-        const target = link.target;
-        
-        line
-          .attr('x1', source.x + 60)
-          .attr('y1', source.y)
-          .attr('x2', target.x - 60)
-          .attr('y2', target.y);
+      const nodes = nodesRef.current;
+      
+      const links = [
+        { source: nodes[1], target: nodes[0], label: 'generated' },
+        { source: nodes[2], target: nodes[1], label: 'associated' }
+      ];
 
-        const midX = (source.x + target.x) / 2;
-        const midY = (source.y + target.y) / 2;
+      nodes.filter(n => n.type === 'derived').forEach(n => {
+        links.push({ source: n, target: nodes[0], label: 'derivedFrom' });
+      });
 
-        rect
-          .attr('x', midX - 70)
-          .attr('y', midY - 25);
+      nodes.filter(n => n.type === 'external').forEach(n => {
+        links.push({ source: nodes[0], target: n, label: 'mentions' });
+      });
 
-        text
-          .attr('x', midX)
-          .attr('y', midY - 5);
+      nodes.filter(n => n.type === 'wikidata').forEach(n => {
+        links.push({ source: nodes[0], target: n, label: 'wikidata' });
+      });
+
+      linkElements.forEach((linkEl, i) => {
+        if (links[i]) {
+          const link = links[i];
+          linkEl.line
+            .attr('x1', link.source.x + 60)
+            .attr('y1', link.source.y)
+            .attr('x2', link.target.x - 60)
+            .attr('y2', link.target.y);
+
+          const midX = (link.source.x + link.target.x) / 2;
+          const midY = (link.source.y + link.target.y) / 2;
+
+          linkEl.rect
+            .attr('x', midX - 70)
+            .attr('y', midY - 25);
+
+          linkEl.text
+            .attr('x', midX)
+            .attr('y', midY - 5);
+        }
       });
     };
 
     updateLinks();
 
+    const colors = {
+      entity: '#10b981',
+      activity: '#3b82f6',
+      agent: '#f59e0b',
+      derived: '#8b5cf6',
+      external: '#ec4899',
+      wikidata: '#06b6d4'
+    };
+
+    nodeGroupsRef.current = [];
+
     nodes.forEach(node => {
-      const colors = {
-        entity: '#10b981',
-        activity: '#3b82f6',
-        agent: '#f59e0b',
-        derived: '#8b5cf6',
-        external: '#ec4899'
-      };
-
       const nodeGroup = g.append('g')
-        .style('cursor', mode === 'drag' ? 'move' : 'pointer')
-        .attr('class', `node-${node.id}`);
+        .attr('transform', `translate(${node.x}, ${node.y})`);
 
-      if (mode === 'drag') {
-        nodeGroup.call(d3.drag()
-          .on('drag', function(event) {
-            node.x = event.x;
-            node.y = event.y;
-            d3.select(this)
-              .attr('transform', `translate(${event.x}, ${event.y})`);
-            updateLinks();
-          }));
-      } else {
-        nodeGroup.on('click', function() {
-          if (node.type === 'derived' || node.type === 'external') {
-            const uri = node.type === 'derived' 
-              ? (data.derived_from?.[parseInt(node.id.split('-')[1])] || '')
-              : (data.related_entities?.[parseInt(node.id.split('-')[1])] || '');
-            if (uri) {
-              window.open(uri, '_blank');
-            }
-          }
+      nodeGroupsRef.current.push({ nodeGroup, node });
+
+      const dragBehavior = d3.drag()
+        .on('drag', function(event) {
+          node.x = event.x;
+          node.y = event.y;
+          d3.select(this).attr('transform', `translate(${event.x}, ${event.y})`);
+          updateLinks();
         });
-      }
+
+      nodeGroup.call(dragBehavior);
 
       nodeGroup.append('circle')
         .attr('cx', 0)
@@ -190,27 +234,12 @@ function ProvenanceGraph({ data }) {
         .attr('stroke', 'white')
         .attr('stroke-width', 4)
         .style('filter', 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))')
+        .style('pointer-events', 'all')
         .on('mouseover', function() {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', 70);
+          d3.select(this).transition().duration(200).attr('r', 70);
         })
         .on('mouseout', function() {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', 60);
-        })
-        .on('click', function() {
-          if (mode === 'click' && (node.type === 'derived' || node.type === 'external')) {
-            const uri = node.type === 'derived' 
-              ? (data.derived_from?.[parseInt(node.id.split('-')[1])] || '')
-              : (data.related_entities?.[parseInt(node.id.split('-')[1])] || '');
-            if (uri) {
-              window.open(uri, '_blank');
-            }
-          }
+          d3.select(this).transition().duration(200).attr('r', 60);
         });
 
       nodeGroup.append('text')
@@ -220,21 +249,108 @@ function ProvenanceGraph({ data }) {
         .attr('fill', 'white')
         .attr('font-size', '16px')
         .attr('font-weight', 'bold')
+        .style('pointer-events', 'none')
         .text(node.label);
 
-      nodeGroup.append('text')
+      const sublabelText = nodeGroup.append('text')
         .attr('x', 0)
         .attr('y', 12)
         .attr('text-anchor', 'middle')
         .attr('fill', 'white')
         .attr('font-size', '13px')
         .style('opacity', 0.9)
+        .style('pointer-events', 'none')
         .text(node.sublabel);
 
-      nodeGroup.attr('transform', `translate(${node.x}, ${node.y})`);
+      if (node.type === 'wikidata' && node.uri) {
+        fetch(`${API_URL}/api/wikidata/label?uri=${encodeURIComponent(node.uri)}`)
+          .then(r => r.json())
+          .then(d => {
+            sublabelText.text(d.label.substring(0, 15));
+          })
+          .catch(() => {});
+      }
     });
 
-  }, [data, mode]);
+  }, [data]);
+
+  useEffect(() => {
+    nodeGroupsRef.current.forEach(({ nodeGroup, node }) => {
+      const circle = nodeGroup.select('circle');
+      
+      if (mode === 'drag') {
+        nodeGroup.style('cursor', 'move').on('click', null);
+        circle.on('click', null);
+        
+        const dragBehavior = d3.drag()
+          .on('drag', function(event) {
+            node.x = event.x;
+            node.y = event.y;
+            d3.select(this).attr('transform', `translate(${event.x}, ${event.y})`);
+            updateLinksForNode();
+          });
+        nodeGroup.call(dragBehavior);
+      } else {
+        nodeGroup.style('cursor', node.uri ? 'pointer' : 'default').on('.drag', null);
+        
+        if (node.uri) {
+          circle.on('click', function(event) {
+            event.stopPropagation();
+            if (node.isInternal) {
+              window.location.href = node.uri;
+            } else {
+              window.open(node.uri, '_blank');
+            }
+          });
+        } else {
+          circle.on('click', null);
+        }
+      }
+    });
+  }, [mode]);
+
+  const updateLinksForNode = () => {
+    const nodes = nodesRef.current;
+    
+    const links = [
+      { source: nodes[1], target: nodes[0], label: 'generated' },
+      { source: nodes[2], target: nodes[1], label: 'associated' }
+    ];
+
+    nodes.filter(n => n.type === 'derived').forEach(n => {
+      links.push({ source: n, target: nodes[0], label: 'derivedFrom' });
+    });
+
+    nodes.filter(n => n.type === 'external').forEach(n => {
+      links.push({ source: nodes[0], target: n, label: 'mentions' });
+    });
+
+    nodes.filter(n => n.type === 'wikidata').forEach(n => {
+      links.push({ source: nodes[0], target: n, label: 'wikidata' });
+    });
+
+    linkElements.forEach((linkEl, i) => {
+      if (links[i]) {
+        const link = links[i];
+        linkEl.line
+          .attr('x1', link.source.x + 60)
+          .attr('y1', link.source.y)
+          .attr('x2', link.target.x - 60)
+          .attr('y2', link.target.y);
+
+        const midX = (link.source.x + link.target.x) / 2;
+        const midY = (link.source.y + link.target.y) / 2;
+
+        linkEl.rect
+          .attr('x', midX - 70)
+          .attr('y', midY - 25);
+
+        linkEl.text
+          .attr('x', midX)
+          .attr('y', midY - 5);
+      }
+    });
+  };
 
   return (
     <div>
