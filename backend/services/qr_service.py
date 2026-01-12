@@ -1,3 +1,4 @@
+import os
 import qrcode
 import io
 import base64
@@ -6,8 +7,9 @@ from typing import Dict
 class QRCodeService:
     
     @staticmethod
-    def generate_qr_code(article_id: str, base_url: str = "http://localhost:3000") -> str:
-        url = f"{base_url}/articles/{article_id}"
+    def generate_qr_code(article_id: str) -> str:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        url = f"{frontend_url}/articles/{article_id}"
         
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
         qr.add_data(url)
@@ -24,9 +26,10 @@ class QRCodeService:
     
     @staticmethod
     def generate_qr_info(article_id: str) -> Dict:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
         qr_data = QRCodeService.generate_qr_code(article_id)
         return {
             "article_id": article_id,
             "qr_code": qr_data,
-            "url": f"http://localhost:3000/articles/{article_id}"
+            "url": f"{frontend_url}/articles/{article_id}"
         }

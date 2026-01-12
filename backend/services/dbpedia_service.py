@@ -82,13 +82,13 @@ class DBpediaService:
                 sparql = SPARQLWrapper(self.dbpedia_endpoint)
                 sparql.setQuery(query)
                 sparql.setReturnFormat(JSON)
-                sparql.setTimeout(5)
+                sparql.setTimeout(15)
                 result = sparql.query().convert()
                 bindings = result.get("results", {}).get("bindings", [])
                 if bindings:
                     wikidata_entities.append(bindings[0]["wikidata"]["value"])
             except Exception as e:
-                print(f"Wikidata lookup error for {uri}: {e}")
+                print(f"Wikidata lookup skipped for {uri.split('/')[-1]}")
         
         return wikidata_entities
     
