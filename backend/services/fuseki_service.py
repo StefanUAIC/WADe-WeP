@@ -117,12 +117,18 @@ class FusekiService:
                 dbpedia_triples += f'    wep:relatedEntity <{entity}> ;\n'
         
         multimedia_triples = ""
-        if article_data.get("image_url"):
-            multimedia_triples += f'    schema:image <{article_data["image_url"]}> ;\n'
-        if article_data.get("video_url"):
-            multimedia_triples += f'    schema:video <{article_data["video_url"]}> ;\n'
-        if article_data.get("audio_url"):
-            multimedia_triples += f'    schema:audio <{article_data["audio_url"]}> ;\n'
+        if article_data.get("image_urls"):
+            for img_url in article_data["image_urls"]:
+                if img_url:
+                    multimedia_triples += f'    schema:image <{img_url}> ;\n'
+        if article_data.get("video_urls"):
+            for vid_url in article_data["video_urls"]:
+                if vid_url:
+                    multimedia_triples += f'    schema:video <{vid_url}> ;\n'
+        if article_data.get("audio_urls"):
+            for aud_url in article_data["audio_urls"]:
+                if aud_url:
+                    multimedia_triples += f'    schema:audio <{aud_url}> ;\n'
         
         derivation_triples = ""
         if article_data.get("based_on_article_id"):
@@ -226,6 +232,11 @@ class FusekiService:
         bindings = result.get("results", {}).get("bindings", [])
         if bindings:
             b = bindings[0]
+            
+            image_urls = list(set([binding["image"]["value"] for binding in bindings if "image" in binding]))
+            video_urls = list(set([binding["video"]["value"] for binding in bindings if "video" in binding]))
+            audio_urls = list(set([binding["audio"]["value"] for binding in bindings if "audio" in binding]))
+            
             article_data = {
                 "id": article_id,
                 "title": b["title"]["value"],
@@ -235,9 +246,9 @@ class FusekiService:
                 "language": b["language"]["value"],
                 "created_at": b["created"]["value"],
                 "keywords": [],
-                "image_url": b.get("image", {}).get("value"),
-                "video_url": b.get("video", {}).get("value"),
-                "audio_url": b.get("audio", {}).get("value")
+                "image_urls": image_urls,
+                "video_urls": video_urls,
+                "audio_urls": audio_urls
             }
             
             if "activity" in b:
@@ -399,7 +410,7 @@ class FusekiService:
         PREFIX wep: <http://example.org/wep/>
         
         SELECT ?activity ?agent ?agentName ?startTime ?endTime
-               ?derivedFrom ?relatedEntity
+               ?derivedFrom ?relatedEntity ?wikidataEntity
         WHERE {{
             <{article_uri}> prov:wasGeneratedBy ?activity .
             ?activity prov:wasAssociatedWith ?agent ;
@@ -409,6 +420,7 @@ class FusekiService:
             
             OPTIONAL {{ <{article_uri}> prov:wasDerivedFrom ?derivedFrom . }}
             OPTIONAL {{ <{article_uri}> wep:relatedEntity ?relatedEntity . }}
+            OPTIONAL {{ <{article_uri}> wep:wikidataEntity ?wikidataEntity . }}
         }}
         """
         
@@ -435,6 +447,7 @@ class FusekiService:
             
             derived_from = []
             related_entities = []
+            wikidata_entities = []
             
             for binding in bindings:
                 if "derivedFrom" in binding:
@@ -446,11 +459,18 @@ class FusekiService:
                     uri = binding["relatedEntity"]["value"]
                     if uri not in related_entities:
                         related_entities.append(uri)
+                
+                if "wikidataEntity" in binding:
+                    uri = binding["wikidataEntity"]["value"]
+                    if uri not in wikidata_entities:
+                        wikidata_entities.append(uri)
             
             if derived_from:
                 chain["derived_from"] = derived_from
             if related_entities:
                 chain["related_entities"] = related_entities[:5]
+            if wikidata_entities:
+                chain["wikidata_entities"] = wikidata_entities[:3]
             
             return chain
         
