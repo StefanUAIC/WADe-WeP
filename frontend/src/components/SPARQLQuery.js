@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from './Navbar';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -22,14 +23,37 @@ WHERE {
 LIMIT 10`
     },
     {
-      name: "Articles in English",
+      name: "Articles in English or Spanish",
       query: `PREFIX schema: <http://schema.org/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 SELECT ?article ?title ?language
 WHERE {
   ?article a schema:NewsArticle ;
            schema:headline ?title ;
-           schema:inLanguage ?language .
-  FILTER(?language = "en")
+           dc:language ?language .
+  FILTER(?language = "en" || ?language = "es")
+}`
+    },
+    {
+      name: "Articles under 4000 words",
+      query: `PREFIX schema: <http://schema.org/>
+SELECT ?article ?title ?content
+WHERE {
+  ?article a schema:NewsArticle ;
+           schema:headline ?title ;
+           schema:articleBody ?content .
+  FILTER(STRLEN(?content) < 4000)
+}`
+    },
+    {
+      name: "Articles with DCMI metadata",
+      query: `PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?article ?title ?creator ?created
+WHERE {
+  ?article dc:title ?title ;
+           dc:creator ?creator ;
+           dcterms:created ?created .
 }`
     },
     {
@@ -42,6 +66,30 @@ WHERE {
            schema:headline ?title ;
            prov:wasGeneratedBy ?activity .
   ?activity prov:wasAssociatedWith ?agent .
+}`
+    },
+    {
+      name: "Articles with DBpedia entities",
+      query: `PREFIX schema: <http://schema.org/>
+PREFIX wep: <http://example.org/wep/>
+SELECT ?article ?title ?entity
+WHERE {
+  ?article a schema:NewsArticle ;
+           schema:headline ?title ;
+           wep:relatedEntity ?entity .
+  FILTER(STRSTARTS(STR(?entity), "http://dbpedia.org/"))
+}
+LIMIT 20`
+    },
+    {
+      name: "Derived articles (translations, revisions)",
+      query: `PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+SELECT ?article ?title ?source
+WHERE {
+  ?article a schema:NewsArticle ;
+           schema:headline ?title ;
+           prov:wasDerivedFrom ?source .
 }`
     }
   ];
@@ -64,12 +112,11 @@ WHERE {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <nav aria-label="Breadcrumb" style={{ marginBottom: '20px' }}>
-        <Link to="/" style={{ color: '#0066cc', textDecoration: 'none' }}>← Back to Articles</Link>
-      </nav>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
 
-      <header style={{ marginBottom: '30px' }}>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <header className="mb-8">
         <h1>SPARQL Query Interface</h1>
         <p style={{ color: '#666' }}>
           Query the RDF knowledge base using SPARQL 1.1
@@ -155,6 +202,7 @@ WHERE {
           )}
         </section>
       )}
+      </main>
     </div>
   );
 }
