@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from './Navbar';
 import ProvenanceGraph from './ProvenanceGraph';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -13,6 +14,9 @@ function ArticleDetail() {
   const [qrCode, setQrCode] = useState(null);
   const [jsonld, setJsonld] = useState(null);
   const [showQR, setShowQR] = useState(false);
+  const [validation, setValidation] = useState(null);
+  const [rdfData, setRdfData] = useState(null);
+  const [showRDF, setShowRDF] = useState(false);
 
   useEffect(() => {
     loadArticleData();
@@ -20,12 +24,14 @@ function ArticleDetail() {
 
   const loadArticleData = async () => {
     try {
-      const [articleRes, provRes, qrRes, jsonldRes, recRes] = await Promise.all([
+      const [articleRes, provRes, qrRes, jsonldRes, recRes, valRes, rdfRes] = await Promise.all([
         axios.get(`${API_URL}/api/articles/${id}`),
         axios.get(`${API_URL}/api/provenance/${id}`),
         axios.get(`${API_URL}/api/articles/${id}/qrcode`),
         axios.get(`${API_URL}/api/articles/${id}/jsonld`),
-        axios.get(`${API_URL}/api/articles/${id}/recommendations`)
+        axios.get(`${API_URL}/api/articles/${id}/recommendations`),
+        axios.get(`${API_URL}/api/articles/${id}/validate`),
+        axios.get(`${API_URL}/api/articles/${id}/rdf?format=turtle`)
       ]);
       
       setArticle(articleRes.data);
@@ -33,6 +39,8 @@ function ArticleDetail() {
       setQrCode(qrRes.data.qr_code);
       setJsonld(jsonldRes.data);
       setRecommendations(recRes.data.recommendations);
+      setValidation(valRes.data);
+      setRdfData(rdfRes.data.data);
     } catch (error) {
       console.error('Error loading article:', error);
     }
@@ -44,15 +52,7 @@ function ArticleDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <nav className="flex gap-4 text-sm">
-            <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">← Back to Articles</Link>
-            <span className="text-gray-400">|</span>
-            <Link to="/sparql" className="text-blue-600 hover:text-blue-800 font-medium">SPARQL Query</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <article vocab="http://schema.org/" typeof="NewsArticle" className="bg-white rounded-lg shadow-lg p-8 mb-8">
@@ -89,50 +89,63 @@ function ArticleDetail() {
             </button>
           </div>
 
-          {article.audio_url && (
+          {article.audio_urls && article.audio_urls.length > 0 && (
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                🎧 Audio/Podcast
+                🎧 Audio/Podcasts ({article.audio_urls.length})
               </h3>
-              <audio 
-                property="audio" 
-                controls 
-                className="w-full"
-                src={article.audio_url}
-              >
-                Your browser does not support the audio element.
-              </audio>
+              <div className="space-y-3">
+                {article.audio_urls.map((url, i) => (
+                  <audio 
+                    key={i}
+                    property="audio" 
+                    controls 
+                    className="w-full"
+                    src={url}
+                  >
+                    Your browser does not support the audio element.
+                  </audio>
+                ))}
+              </div>
             </div>
           )}
 
-          {article.image_url && (
-            <figure className="mb-8 -mx-8">
-              <img 
-                property="image" 
-                src={article.image_url} 
-                alt={article.title} 
-                className="w-full h-96 object-cover"
-              />
-            </figure>
+          {article.image_urls && article.image_urls.length > 0 && (
+            <div className="mb-8 -mx-8 grid grid-cols-1 gap-4">
+              {article.image_urls.map((url, i) => (
+                <figure key={i}>
+                  <img 
+                    property="image" 
+                    src={url} 
+                    alt={`${article.title} - Image ${i + 1}`} 
+                    className="w-full h-96 object-cover"
+                  />
+                </figure>
+              ))}
+            </div>
           )}
 
           <div property="articleBody" className="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-8">
             {article.content}
           </div>
 
-          {article.video_url && (
+          {article.video_urls && article.video_urls.length > 0 && (
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                🎥 Video Content
+                🎥 Video Content ({article.video_urls.length})
               </h3>
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  property="video"
-                  src={article.video_url}
-                  title="Article video"
-                  className="w-full h-full"
-                  allowFullScreen
-                ></iframe>
+              <div className="space-y-6">
+                {article.video_urls.map((url, i) => (
+                  <div key={i} className="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-lg">
+                    <iframe
+                      property="video"
+                      src={url}
+                      title={`Article video ${i + 1}`}
+                      className="w-full h-full"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -153,6 +166,53 @@ function ArticleDetail() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">🔗 Provenance Chain (W3C PROV)</h2>
           {provenance && <ProvenanceGraph data={provenance} />}
         </section>
+
+        {validation && (
+          <section className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">✓ SHACL Validation</h2>
+            <div className={`p-4 rounded-lg mb-4 ${validation.conforms ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500'}`}>
+              <p className="text-lg font-semibold">
+                {validation.conforms ? '✓ Valid RDF Data' : '✗ Invalid RDF Data'}
+              </p>
+              <p className="text-sm mt-1 text-gray-600">
+                {validation.conforms 
+                  ? 'This article conforms to W3C PROV and Schema.org constraints' 
+                  : 'This article has validation issues'}
+              </p>
+            </div>
+            
+            {rdfData && (
+              <div>
+                <button
+                  onClick={() => setShowRDF(!showRDF)}
+                  className="text-blue-600 hover:text-blue-800 font-medium text-sm mb-3"
+                >
+                  {showRDF ? '▼ Hide RDF Data (Turtle)' : '▶ Show RDF Data (Turtle)'}
+                </button>
+                
+                {showRDF && (
+                  <div>
+                    <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto text-xs font-mono max-h-96 mb-3">
+                      {rdfData}
+                    </pre>
+                    <p className="text-xs text-gray-500">
+                      This RDF includes: Dublin Core (dc:), Schema.org, W3C PROV, IPTC subjects, and DBpedia entities
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="mt-4">
+              <Link 
+                to="/validate" 
+                className="text-purple-600 hover:text-purple-800 font-medium text-sm"
+              >
+                → Go to SHACL Validation page to see constraints
+              </Link>
+            </div>
+          </section>
+        )}
 
         {showQR && (
           <div 

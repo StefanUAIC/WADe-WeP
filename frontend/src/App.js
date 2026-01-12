@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from './components/Navbar';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -9,6 +10,9 @@ function App() {
   const [stats, setStats] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [imageUrls, setImageUrls] = useState(['']);
+  const [videoUrls, setVideoUrls] = useState(['']);
+  const [audioUrls, setAudioUrls] = useState(['']);
 
   useEffect(() => {
     loadArticles();
@@ -61,9 +65,9 @@ function App() {
       language: formData.get('language'),
       keywords: keywords,
       iptc_subjects: iptcSubjects,
-      image_url: formData.get('image_url') || null,
-      video_url: formData.get('video_url') || null,
-      audio_url: formData.get('audio_url') || null,
+      image_urls: imageUrls.filter(url => url.trim()),
+      video_urls: videoUrls.filter(url => url.trim()),
+      audio_urls: audioUrls.filter(url => url.trim()),
       based_on_article_id: formData.get('based_on_article_id') || null,
       derivation_type: formData.get('derivation_type') || null,
       url: formData.get('url') || null
@@ -72,6 +76,9 @@ function App() {
     try {
       await axios.post(`${API_URL}/api/articles`, articleData);
       setShowCreateForm(false);
+      setImageUrls(['']);
+      setVideoUrls(['']);
+      setAudioUrls(['']);
       loadArticles();
       loadStats();
       e.target.reset();
@@ -85,23 +92,17 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <a href="#main" className="skip-link">Skip to main content</a>
       
-      <header className="bg-white shadow-sm border-b-2 border-blue-600">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-4xl font-bold text-gray-900">WeP - Web News Provenance</h1>
-          <p className="text-gray-600 mt-2">
-            Track and manage news article provenance using semantic web technologies
-          </p>
-          <nav className="mt-4 flex gap-6">
-            <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">Home</Link>
-            <Link to="/sparql" className="text-blue-600 hover:text-blue-800 font-medium">SPARQL Query</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <main id="main" className="max-w-7xl mx-auto px-4 py-8">
         {stats && (
           <section className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6 mb-8 shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Statistics</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Statistics</h2>
+              <Link to="/statistics" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm">
+                View Detailed →
+              </Link>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white bg-opacity-20 rounded-lg p-4">
                 <div className="text-3xl font-bold">{stats.total_articles}</div>
@@ -225,37 +226,110 @@ function App() {
 
               <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-semibold text-gray-900 mb-3">📎 Multimedia (Optional)</h4>
-                <div className="grid grid-cols-1 gap-3">
-                  <div>
-                    <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                    <input 
-                      id="image_url" 
-                      name="image_url" 
-                      type="url" 
-                      placeholder="https://example.com/image.jpg" 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="video_url" className="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
-                    <input 
-                      id="video_url" 
-                      name="video_url" 
-                      type="url" 
-                      placeholder="https://youtube.com/embed/..." 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="audio_url" className="block text-sm font-medium text-gray-700 mb-1">Audio/Podcast URL</label>
-                    <input 
-                      id="audio_url" 
-                      name="audio_url" 
-                      type="url" 
-                      placeholder="https://example.com/podcast.mp3" 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
-                    />
-                  </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
+                  {imageUrls.map((url, i) => (
+                    <div key={i} className="flex gap-2 mb-2">
+                      <input 
+                        type="url" 
+                        value={url}
+                        onChange={(e) => {
+                          const newUrls = [...imageUrls];
+                          newUrls[i] = e.target.value;
+                          setImageUrls(newUrls);
+                        }}
+                        placeholder="https://example.com/image.jpg" 
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
+                      />
+                      {imageUrls.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => setImageUrls(imageUrls.filter((_, idx) => idx !== i))}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button 
+                    type="button"
+                    onClick={() => setImageUrls([...imageUrls, ''])}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    + Add Image
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Videos</label>
+                  {videoUrls.map((url, i) => (
+                    <div key={i} className="flex gap-2 mb-2">
+                      <input 
+                        type="url" 
+                        value={url}
+                        onChange={(e) => {
+                          const newUrls = [...videoUrls];
+                          newUrls[i] = e.target.value;
+                          setVideoUrls(newUrls);
+                        }}
+                        placeholder="https://youtube.com/embed/..." 
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
+                      />
+                      {videoUrls.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => setVideoUrls(videoUrls.filter((_, idx) => idx !== i))}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button 
+                    type="button"
+                    onClick={() => setVideoUrls([...videoUrls, ''])}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    + Add Video
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Audio/Podcasts</label>
+                  {audioUrls.map((url, i) => (
+                    <div key={i} className="flex gap-2 mb-2">
+                      <input 
+                        type="url" 
+                        value={url}
+                        onChange={(e) => {
+                          const newUrls = [...audioUrls];
+                          newUrls[i] = e.target.value;
+                          setAudioUrls(newUrls);
+                        }}
+                        placeholder="https://example.com/podcast.mp3" 
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
+                      />
+                      {audioUrls.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => setAudioUrls(audioUrls.filter((_, idx) => idx !== i))}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button 
+                    type="button"
+                    onClick={() => setAudioUrls([...audioUrls, ''])}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    + Add Audio
+                  </button>
                 </div>
               </div>
 
