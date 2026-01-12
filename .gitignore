@@ -1,3 +1,9 @@
 /.old/node_modules
 /provenance-platform/node_modules
 /.old/node_modules
+__pycache__/
+*.pyc
+*.pyo
+.env
+node_modules/
+.DS_Store

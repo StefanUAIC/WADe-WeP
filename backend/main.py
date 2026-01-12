@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 from services.fuseki_service import FusekiService
 from services.dbpedia_service import DBpediaService
@@ -52,19 +53,27 @@ def get_articles():
 def create_article(article: ArticleCreate):
     try:
         article_dict = article.dict()
-        print(f"Creating article: {article_dict['title']}")
         enriched_data = dbpedia_service.enrich_article(article_dict)
-        print(f"Enriched with {len(enriched_data.get('dbpedia_entities', []))} entities")
         result = fuseki_service.create_article(enriched_data)
         if result:
-            print(f"Article created: {result['id']}")
             return result
-        print("Failed to create article - no result")
         raise HTTPException(status_code=500, detail="Failed to create article")
     except Exception as e:
         print(f"Error creating article: {e}")
         import traceback
         traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/articles/{article_id}/validate")
+def validate_article(article_id: str):
+    try:
+        rdf_data = fuseki_service.get_article_rdf(article_id, "turtle")
+        if not rdf_data:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
+        validation_result = SHACLService.validate_article_data(rdf_data)
+        return validation_result
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/articles/{article_id}")
@@ -92,12 +101,13 @@ def get_article_jsonld(article_id: str):
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
         
-        base_url = os.getenv("BASE_URL", "http://localhost:8000")
+        provenance = fuseki_service.get_full_provenance_chain(article_id)
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
         
         jsonld = {
             "@context": "http://schema.org/",
             "@type": "NewsArticle",
-            "@id": f"{base_url}/article/{article_id}",
+            "@id": f"{frontend_url}/articles/{article_id}",
             "headline": article["title"],
             "articleBody": article["content"],
             "author": {
@@ -112,6 +122,28 @@ def get_article_jsonld(article_id: str):
             "dateCreated": article["created_at"],
             "keywords": article.get("keywords", [])
         }
+        
+        if article.get("image_urls"):
+            jsonld["image"] = article["image_urls"]
+        
+        if article.get("video_urls"):
+            jsonld["video"] = article["video_urls"]
+        
+        if article.get("audio_urls"):
+            jsonld["audio"] = article["audio_urls"]
+        
+        if provenance.get("derived_from"):
+            jsonld["isBasedOn"] = provenance["derived_from"]
+        
+        if provenance.get("related_entities"):
+            jsonld["mentions"] = [
+                {"@type": "Thing", "@id": uri} 
+                for uri in provenance["related_entities"][:5]
+            ]
+        
+        if provenance.get("wikidata_entities"):
+            jsonld["sameAs"] = provenance["wikidata_entities"]
+        
         return jsonld
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -157,6 +189,30 @@ def search_articles(q: str, language: str = None):
         return {"results": results, "count": len(results)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/wikidata/label")
+def get_wikidata_label(uri: str):
+    try:
+        entity_id = uri.split('/')[-1]
+        query = f"""
+        SELECT ?label WHERE {{
+            wd:{entity_id} rdfs:label ?label .
+            FILTER(LANG(?label) = "en")
+        }}
+        LIMIT 1
+        """
+        
+        sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        result = sparql.query().convert()
+        
+        bindings = result.get("results", {}).get("bindings", [])
+        if bindings:
+            return {"label": bindings[0]["label"]["value"]}
+        return {"label": entity_id}
+    except:
+        return {"label": uri.split('/')[-1]}
 
 @app.get("/api/wikidata/search")
 def search_wikidata(q: str):
