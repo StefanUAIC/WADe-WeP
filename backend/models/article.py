@@ -6,10 +6,10 @@ class ArticleCreate(BaseModel):
     based_on_article_id: Optional[str] = None
     keywords: Optional[List[str]] = []
     iptc_subjects: Optional[List[str]] = []
+    image_urls: Optional[List[str]] = []
+    video_urls: Optional[List[str]] = []
+    audio_urls: Optional[List[str]] = []
     url: Optional[str] = None
-    image_url: Optional[str] = None
-    video_url: Optional[str] = None
-    audio_url: Optional[str] = None
     derivation_type: Optional[str] = None
     language: str = "en"
     publication: str
