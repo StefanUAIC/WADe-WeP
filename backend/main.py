@@ -19,7 +19,7 @@ app = FastAPI(title="WeP - Web News Provenance", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://16.170.172.125:3000"],
+    allow_origins=["http://localhost:3000", "http://54.72.245.20:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -131,7 +131,6 @@ def get_article_jsonld(article_id: str):
                 "name": article["publication"]
             },
             "inLanguage": article["language"],
-            "dateCreated": article["created_at"],
             "keywords": article.get("keywords", [])
         }
         

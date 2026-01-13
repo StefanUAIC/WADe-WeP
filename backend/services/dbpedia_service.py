@@ -28,7 +28,7 @@ class DBpediaService:
         try:
             response = requests.post(
                 self.spotlight_endpoint,
-                data={"text": text[:1000], "confidence": 0.5, "support": 20},
+                data={"text": text[:1000], "confidence": 0.3, "support": 10},
                 headers={"Accept": "application/json"},
                 timeout=5
             )
@@ -36,7 +36,7 @@ class DBpediaService:
                 data = response.json()
                 resources = data.get("Resources", [])
                 entities = []
-                for r in resources[:10]:
+                for r in resources[:15]:
                     uri = r["@URI"]
                     types = r.get("@types", "")
                     if any(t in types for t in ["Person", "Place", "Organisation", "Work", "Species", "Event"]):

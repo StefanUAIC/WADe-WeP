@@ -25,9 +25,9 @@
 </p>
    
 <h4>
-    <a href="http://your-deployed-app.com">View Demo</a>
+    <a href="docs/demo-video.mp4">View Demo</a>
   <span> · </span>
-    <a href="#eyes-usage">Documentation</a>
+    <a href="docs/scholarly-html/TechnicalReport.html">Technical Report</a>
   <span> · </span>
     <a href="https://github.com/StefanUAIC/WADe-WeP/issues/">Report Bug</a>
   <span> · </span>
@@ -40,7 +40,6 @@
 # :notebook_with_decorative_cover: Table of Contents
 
 - [About the Project](#star2-about-the-project)
-  * [Screenshots](#camera-screenshots)
   * [Tech Stack](#space_invader-tech-stack)
   * [Features](#dart-features)
   * [Environment Variables](#key-environment-variables)
@@ -58,12 +57,6 @@
 ## :star2: About the Project
 
 WeP (Web News Provenance) is a semantic web application designed to track, model, and manage the complete provenance chain of online newspaper articles. Built using W3C PROV standards, it provides comprehensive metadata management, entity linking with DBpedia/Wikidata, and advanced recommendation systems for news content discovery.
-
-### :camera: Screenshots
-
-<div align="center"> 
-  <img src="https://placehold.co/600x400?text=WeP+Dashboard" alt="WeP Dashboard" />
-</div>
 
 ### :space_invader: Tech Stack
 
@@ -172,18 +165,31 @@ Access the application:
 
 ### :triangular_flag_on_post: Deployment
 
+**Live Demo:** Available during evaluation period (January 13-15, 2026)
+
 Deploy to AWS EC2
 
 ```bash
-# Build and push to registry
-docker-compose build
-docker-compose push
+# On EC2 instance
+sudo apt-get update
+sudo apt-get install -y docker.io docker-compose-v2
+sudo systemctl start docker
 
-# Deploy on EC2
-scp docker-compose.yml ec2-user@your-instance:/home/ec2-user/
-ssh ec2-user@your-instance
-docker-compose up -d
+# Transfer files
+scp -i wep-key.pem wep-deploy.tar.gz ubuntu@your-ec2-ip:~/
+ssh -i wep-key.pem ubuntu@your-ec2-ip
+tar xzf wep-deploy.tar.gz
+sudo docker compose up -d --build
+
+# Create dataset in Fuseki UI
+# Access http://your-ec2-ip:3030
+# Create dataset: news-provenance (Persistent TDB2)
 ```
+
+Access the application:
+- **Frontend**: http://your-ec2-ip:3000
+- **Backend API**: http://your-ec2-ip:8000/docs
+- **Fuseki SPARQL**: http://your-ec2-ip:3030
 
 ## :eyes: Usage
 

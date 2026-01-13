@@ -28,7 +28,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=http://54.72.245.20:8000
     volumes:
       - ./frontend:/app
       - /app/node_modules

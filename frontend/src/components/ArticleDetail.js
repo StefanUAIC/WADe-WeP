@@ -71,11 +71,6 @@ function ArticleDetail() {
                 <span property="name">{article.publication}</span>
               </span>
               <span className="text-gray-400">•</span>
-              <time property="dateCreated" dateTime={article.created_at} className="flex items-center gap-2">
-                <span className="font-semibold">📅</span>
-                {new Date(article.created_at).toLocaleDateString()}
-              </time>
-              <span className="text-gray-400">•</span>
               <span property="inLanguage" className="flex items-center gap-2">
                 <span className="font-semibold">🌐</span>
                 {article.language.toUpperCase()}

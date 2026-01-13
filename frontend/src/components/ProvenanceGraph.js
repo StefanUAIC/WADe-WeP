@@ -9,6 +9,7 @@ function ProvenanceGraph({ data }) {
   const [mode, setMode] = useState('drag');
   const nodesRef = useRef([]);
   const nodeGroupsRef = useRef([]);
+  const linkElementsRef = useRef([]);
 
   useEffect(() => {
     if (!data || !data.entity) return;
@@ -153,6 +154,8 @@ function ProvenanceGraph({ data }) {
 
       return { line, rect, text, link };
     });
+
+    linkElementsRef.current = linkElements;
 
     const updateLinks = () => {
       const nodes = nodesRef.current;
@@ -311,6 +314,7 @@ function ProvenanceGraph({ data }) {
 
   const updateLinksForNode = () => {
     const nodes = nodesRef.current;
+    const linkElements = linkElementsRef.current;
     
     const links = [
       { source: nodes[1], target: nodes[0], label: 'generated' },
@@ -386,7 +390,6 @@ function ProvenanceGraph({ data }) {
         <p><span className="font-semibold text-gray-900">📦 Entity:</span> NewsArticle</p>
         <p><span className="font-semibold text-gray-900">⚡ Activity:</span> {data.activity?.uri?.split('/').pop()}</p>
         <p><span className="font-semibold text-gray-900">👤 Agent:</span> {data.agent?.name}</p>
-        <p><span className="font-semibold text-gray-900">🕐 Time:</span> {new Date(data.activity?.startTime).toLocaleString()}</p>
       </div>
     </div>
   );

@@ -187,11 +187,30 @@ WHERE {
                 <tbody>
                   {results.results.bindings.map((binding, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
-                      {results.head.vars.map((v) => (
-                        <td key={v} style={{ padding: '10px' }}>
-                          {binding[v]?.value || '-'}
-                        </td>
-                      ))}
+                      {results.head.vars.map((v) => {
+                        const value = binding[v]?.value || '-';
+                        const isArticleURI = value.includes('/article/');
+                        
+                        if (isArticleURI) {
+                          const articleId = value.split('/article/').pop();
+                          return (
+                            <td key={v} style={{ padding: '10px' }}>
+                              <a 
+                                href={`/articles/${articleId}`}
+                                style={{ color: '#0066cc', textDecoration: 'underline' }}
+                              >
+                                {articleId}
+                              </a>
+                            </td>
+                          );
+                        }
+                        
+                        return (
+                          <td key={v} style={{ padding: '10px' }}>
+                            {value}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>

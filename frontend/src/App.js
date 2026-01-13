@@ -13,6 +13,7 @@ function App() {
   const [imageUrls, setImageUrls] = useState(['']);
   const [videoUrls, setVideoUrls] = useState(['']);
   const [audioUrls, setAudioUrls] = useState(['']);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadArticles();
@@ -53,6 +54,9 @@ function App() {
 
   const handleCreateArticle = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
     const formData = new FormData(e.target);
     const keywords = formData.get('keywords').split(',').map(k => k.trim()).filter(k => k);
     const iptcSubjects = Array.from(formData.getAll('iptc_subjects'));
@@ -85,6 +89,8 @@ function App() {
     } catch (error) {
       console.error('Error creating article:', error);
       alert('Error creating article');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -398,10 +404,11 @@ function App() {
               </div>
 
               <button 
-                type="submit" 
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors"
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ✓ Create Article
+                {isSubmitting ? '⏳ Creating...' : '✓ Create Article'}
               </button>
             </form>
           )}
