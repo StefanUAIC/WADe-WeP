@@ -52,7 +52,7 @@ class FusekiService:
         PREFIX schema: <http://schema.org/>
         PREFIX wep: <http://example.org/wep/>
         
-        SELECT ?article ?title ?author ?content ?publication ?language ?created
+        SELECT ?article ?title ?author ?content ?publication ?language ?created ?keyword
         WHERE {
             ?article a schema:NewsArticle ;
                      schema:headline ?title ;
@@ -61,23 +61,34 @@ class FusekiService:
                      schema:publisher ?publication ;
                      schema:inLanguage ?language ;
                      schema:dateCreated ?created .
+            OPTIONAL { ?article schema:keywords ?keyword . }
         }
         ORDER BY DESC(?created)
-        LIMIT 50
         """
         result = self.execute_sparql(query)
-        articles = []
+        
+        articles_dict = {}
         for binding in result.get("results", {}).get("bindings", []):
-            articles.append({
-                "id": binding["article"]["value"].split("/")[-1],
-                "title": binding["title"]["value"],
-                "author": binding["author"]["value"],
-                "content": binding["content"]["value"],
-                "publication": binding["publication"]["value"],
-                "language": binding["language"]["value"],
-                "created_at": binding["created"]["value"]
-            })
-        return articles
+            article_id = binding["article"]["value"].split("/")[-1]
+            
+            if article_id not in articles_dict:
+                articles_dict[article_id] = {
+                    "id": article_id,
+                    "title": binding["title"]["value"],
+                    "author": binding["author"]["value"],
+                    "content": binding["content"]["value"],
+                    "publication": binding["publication"]["value"],
+                    "language": binding["language"]["value"],
+                    "created_at": binding["created"]["value"],
+                    "keywords": []
+                }
+            
+            if "keyword" in binding:
+                keyword = binding["keyword"]["value"]
+                if keyword not in articles_dict[article_id]["keywords"]:
+                    articles_dict[article_id]["keywords"].append(keyword)
+        
+        return list(articles_dict.values())
     
     def create_article(self, article_data: Dict) -> Dict:
         article_id = str(uuid.uuid4())
@@ -206,7 +217,7 @@ class FusekiService:
         PREFIX wep: <http://example.org/wep/>
         
         SELECT ?title ?author ?content ?publication ?language ?created 
-               ?image ?video ?audio
+               ?image ?video ?audio ?keyword
                ?activity ?agent ?agentName
         WHERE {{
             <{article_uri}> a schema:NewsArticle ;
@@ -220,6 +231,7 @@ class FusekiService:
             OPTIONAL {{ <{article_uri}> schema:image ?image . }}
             OPTIONAL {{ <{article_uri}> schema:video ?video . }}
             OPTIONAL {{ <{article_uri}> schema:audio ?audio . }}
+            OPTIONAL {{ <{article_uri}> schema:keywords ?keyword . }}
             
             OPTIONAL {{
                 <{article_uri}> prov:wasGeneratedBy ?activity .
@@ -236,6 +248,7 @@ class FusekiService:
             image_urls = list(set([binding["image"]["value"] for binding in bindings if "image" in binding]))
             video_urls = list(set([binding["video"]["value"] for binding in bindings if "video" in binding]))
             audio_urls = list(set([binding["audio"]["value"] for binding in bindings if "audio" in binding]))
+            keywords = list(set([binding["keyword"]["value"] for binding in bindings if "keyword" in binding]))
             
             article_data = {
                 "id": article_id,
@@ -245,7 +258,7 @@ class FusekiService:
                 "publication": b["publication"]["value"],
                 "language": b["language"]["value"],
                 "created_at": b["created"]["value"],
-                "keywords": [],
+                "keywords": keywords,
                 "image_urls": image_urls,
                 "video_urls": video_urls,
                 "audio_urls": audio_urls

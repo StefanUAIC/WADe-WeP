@@ -10,6 +10,7 @@ from services.fuseki_service import FusekiService
 from services.dbpedia_service import DBpediaService
 from services.qr_service import QRCodeService
 from services.shacl_service import SHACLService
+from services.recommendation_service import RecommendationService
 from models.article import Article, ArticleCreate
 
 load_dotenv()
@@ -18,7 +19,7 @@ app = FastAPI(title="WeP - Web News Provenance", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://16.170.172.125:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,8 +90,19 @@ def get_article(article_id: str):
 @app.get("/api/articles/{article_id}/recommendations")
 def get_recommendations(article_id: str):
     try:
-        recommendations = fuseki_service.get_recommendations(article_id)
-        return {"recommendations": recommendations, "count": len(recommendations)}
+        current_article = fuseki_service.get_article_with_provenance(article_id)
+        if not current_article:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
+        all_articles = fuseki_service.get_articles()
+        
+        ml_recommendations = RecommendationService.get_ml_recommendations(
+            current_article, 
+            all_articles, 
+            limit=5
+        )
+        
+        return {"recommendations": ml_recommendations, "count": len(ml_recommendations), "method": "ML (TF-IDF + Cosine Similarity)"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
