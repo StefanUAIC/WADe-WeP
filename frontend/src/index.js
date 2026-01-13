@@ -15,7 +15,7 @@ root.render(
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/articles/:id" element={<ArticleDetail />} />
+        <Route path="/articles/:id" element={<ArticleDetail key={window.location.pathname} />} />
         <Route path="/sparql" element={<SPARQLQuery />} />
         <Route path="/validate" element={<SHACLValidation />} />
         <Route path="/statistics" element={<Statistics />} />

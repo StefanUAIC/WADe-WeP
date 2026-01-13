@@ -19,32 +19,33 @@ function ArticleDetail() {
   const [showRDF, setShowRDF] = useState(false);
 
   useEffect(() => {
-    loadArticleData();
+    const loadData = async () => {
+      try {
+        const articleRes = await axios.get(`${API_URL}/api/articles/${id}`);
+        setArticle(articleRes.data);
+        
+        const [provRes, qrRes, jsonldRes, recRes, valRes, rdfRes] = await Promise.allSettled([
+          axios.get(`${API_URL}/api/provenance/${id}`),
+          axios.get(`${API_URL}/api/articles/${id}/qrcode`),
+          axios.get(`${API_URL}/api/articles/${id}/jsonld`),
+          axios.get(`${API_URL}/api/articles/${id}/recommendations`),
+          axios.get(`${API_URL}/api/articles/${id}/validate`),
+          axios.get(`${API_URL}/api/articles/${id}/rdf?format=turtle`)
+        ]);
+        
+        if (provRes.status === 'fulfilled') setProvenance(provRes.value.data);
+        if (qrRes.status === 'fulfilled') setQrCode(qrRes.value.data.qr_code);
+        if (jsonldRes.status === 'fulfilled') setJsonld(jsonldRes.value.data);
+        if (recRes.status === 'fulfilled') setRecommendations(recRes.value.data.recommendations);
+        if (valRes.status === 'fulfilled') setValidation(valRes.value.data);
+        if (rdfRes.status === 'fulfilled') setRdfData(rdfRes.value.data.data);
+      } catch (error) {
+        console.error('Error loading article:', error);
+      }
+    };
+    
+    loadData();
   }, [id]);
-
-  const loadArticleData = async () => {
-    try {
-      const [articleRes, provRes, qrRes, jsonldRes, recRes, valRes, rdfRes] = await Promise.all([
-        axios.get(`${API_URL}/api/articles/${id}`),
-        axios.get(`${API_URL}/api/provenance/${id}`),
-        axios.get(`${API_URL}/api/articles/${id}/qrcode`),
-        axios.get(`${API_URL}/api/articles/${id}/jsonld`),
-        axios.get(`${API_URL}/api/articles/${id}/recommendations`),
-        axios.get(`${API_URL}/api/articles/${id}/validate`),
-        axios.get(`${API_URL}/api/articles/${id}/rdf?format=turtle`)
-      ]);
-      
-      setArticle(articleRes.data);
-      setProvenance(provRes.data);
-      setQrCode(qrRes.data.qr_code);
-      setJsonld(jsonldRes.data);
-      setRecommendations(recRes.data.recommendations);
-      setValidation(valRes.data);
-      setRdfData(rdfRes.data.data);
-    } catch (error) {
-      console.error('Error loading article:', error);
-    }
-  };
 
   if (!article) {
     return <div className="flex items-center justify-center min-h-screen"><div className="text-xl">Loading...</div></div>;
@@ -251,15 +252,23 @@ function ArticleDetail() {
 
         {recommendations.length > 0 && (
           <section className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">💡 Recommended Articles</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">💡 Recommended Articles (ML-based)</h2>
+            <p className="text-sm text-gray-600 mb-4">Based on TF-IDF and Cosine Similarity</p>
             <div className="grid gap-4">
               {recommendations.map((rec) => (
                 <div key={rec.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-md transition-all">
-                  <h3 className="text-lg font-semibold mb-2">
-                    <Link to={`/articles/${rec.id}`} className="text-blue-600 hover:text-blue-800">
-                      {rec.title}
-                    </Link>
-                  </h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-semibold flex-1">
+                      <Link to={`/articles/${rec.id}`} className="text-blue-600 hover:text-blue-800">
+                        {rec.title}
+                      </Link>
+                    </h3>
+                    {rec.similarity > 0 && (
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold ml-3">
+                        {(rec.similarity * 100).toFixed(1)}% match
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-600">
                     {rec.author} • {rec.publication}
                   </p>
