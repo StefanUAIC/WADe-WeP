@@ -25,7 +25,7 @@
 </p>
    
 <h4>
-    <a href="docs/demo-video.mp4">View Demo</a>
+    <a href="docs/demo-video.mp4">View Demo (Link for the deployed application can be obtained Demo video)</a>
   <span> · </span>
     <a href="docs/scholarly-html/TechnicalReport.html">Technical Report</a>
   <span> · </span>
